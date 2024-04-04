@@ -12,8 +12,9 @@ from rl_base import BaseEnvironment, BasePredictionAgent, BaseControlAgent
 
 class Environment(BaseEnvironment):
     
-    def __init__(self, state, agent):
+    def __init__(self, state, agent, printing = False):
         super().__init__(state, agent)
+        self._printing = printing
     
     def _take_action(self, action):
         self._current_state += action
@@ -23,14 +24,31 @@ class Environment(BaseEnvironment):
             return (1, True, self._current_state)
         return (0, False, self._current_state)
     
+    def print(self, action):
+        if self._printing:
+            print("----")
+            print(self._current_state)
+            print(action)
+            print("----")
+        
     def run_episode(self):
         terminated = False
         action = self._agent.first_step(self._current_state)
+        self.print(action)
         reward, terminated, self._current_state = self._take_action(action)
         while not terminated:
             action = self._agent.step(self._current_state, reward)
+            self.print(action)
             reward, terminated, self._current_state = self._take_action(action)
         self._agent.last_step(self._current_state, reward)
+    
+    def play(self):
+        terminated = False
+        while not terminated:
+            action = self._agent.first_step(self._current_state)
+            self.print(action)
+            reward, terminated, self._current_state = self._take_action(action)
+            
     
     def reset(self):
         self._current_state = self._original_state
@@ -102,7 +120,10 @@ class QLearningControl(BaseControlAgent):
             return np.random.choice(self._actions)
         elif left_value > right_value:
             return -1
-        return 1
+        elif left_value < right_value:
+            return 1
+        else:
+            return np.random.choice([-1,1])
     
     def first_step(self, current_state):
         action = self.take_action(current_state)
@@ -130,10 +151,23 @@ class QLearningControl(BaseControlAgent):
         
 agent = QLearningControl(alpha = 0.05)
 env = Environment(3, agent)
-for i in range(10000):
+for i in range(1000):
     env.run_episode()
     env.reset()
 agent._q_value
+
+# win = 0
+# loss = 0
+# for i in range(10000):
+# # env._printing = False
+#     env.play()
+#     if env.current_state == 0:
+#         loss+=1
+#     elif env.current_state == 6:
+#         win+=1
+#     env.reset()
+
+# print(win, loss)
 
 class MCAgentPrediction(BasePredictionAgent):
     
@@ -273,4 +307,3 @@ env = Environment(3, agent)
 for i in range(1000):
     env.run_episode()
     env.reset()
-agent._policy

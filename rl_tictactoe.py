@@ -32,6 +32,7 @@ class Board:
         return free_moves
     
     def move(self, player, index):
+
         free_moves = self.get_possible_actions()
         next_state = list(self._current_state)
         if index in free_moves:
@@ -39,6 +40,7 @@ class Board:
         else:
             raise Exception("Invalid move")
         self._current_state = tuple(next_state)
+        # self.print()
         return self
     
     def is_end_game(self):
@@ -319,9 +321,9 @@ class EnvironmentAgentSecondPlayer(BaseEnvironment):
 board1 = Board()
 agent_1 = QLearningControl(alpha = 0.27, identifier = 1)
 agent_2 = RandomAgent(identifier = -1)
-env1 = Environment(board1, agent_1, agent_2, True)
+env1 = Environment(board1, agent_1, agent_2, False)
 while True:
-    for i in range(100):
+    for i in range(300000):
         env1.run_episode()
         env1.reset()
         
@@ -329,7 +331,7 @@ while True:
     num_wins = 0
     num_losses = 0
     num_draws = 0
-    for i in range(10000):
+    for i in range(1000):
         env1.play()
         num_episodes +=1
         if board1.winner == agent_1.identifier:
@@ -339,7 +341,8 @@ while True:
         else:
             num_draws += 1
         env1.reset()
-    print(f"Statistics: Not losses:{(num_wins+num_draws)/num_episodes}, Losses:{num_losses/num_episodes}")
+    print(f"Statistics: Wins:{(num_wins)/num_episodes}, Not losses:{(num_wins+num_draws)/num_episodes}, Losses:{num_losses/num_episodes}")
+    break
 
 board2 = Board()
 agent_3 = QLearningControl(alpha = 0.3, identifier = -1)
