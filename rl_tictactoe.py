@@ -7,7 +7,7 @@ Created on Thu Mar 21 11:29:55 2024
 """
 import numpy as np
 from rl_base import BaseEnvironment, BasePredictionAgent, BaseControlAgent, Experience
-np.random.seed(42)
+# np.random.seed(42)
 
 class Board:
     

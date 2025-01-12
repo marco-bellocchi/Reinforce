@@ -157,8 +157,8 @@ def train():
         #     best =(num_wins+num_draws)/num_episodes
         #     agent_1._model.save()
 # train()
-num_runs = 30
-num_ep = 200
+num_runs = 20
+num_ep = 1000
 scores_replay = np.zeros((num_runs, num_ep))
 
 for run in tqdm(range(num_runs)):           # tqdm is what creates the progress bar below
@@ -247,17 +247,48 @@ for run in tqdm(range(num_runs)):           # tqdm is what creates the progress 
                 num_draws += 1
             env1.reset()
         scores_tabular_q[run,episode_number] = (num_wins+num_draws)/num_episodes
-        
+
+scores_tabular_q_no_replay = np.zeros((num_runs, num_ep))
+for run in tqdm(range(num_runs)):           # tqdm is what creates the progress bar below
+    np.random.seed(run)
+    board1 = Board()
+    agent_1 = QLearningControl(alpha = 0.27, identifier = 1)
+    # agent_1._model.load()
+    # agent_1 = QLearningApproximateControl(alpha = 0.05, identifier = 1)
+    agent_2 = RandomAgent(identifier = -1)
+    env1 = Environment(board1, agent_1, agent_2, False)
+    
+    for episode_number in range(num_ep):
+        env1.run_episode()
+        env1.reset()
+        num_wins = 0
+        num_losses = 0
+        num_draws = 0
+        num_episodes = 0
+        for _ in range(100):
+            env1.play()
+            num_episodes +=1
+            if board1.winner == agent_1.identifier:
+                num_wins += 1
+            elif board1.winner == agent_2.identifier:
+                num_losses += 1
+            else:
+                num_draws += 1
+            env1.reset()
+        scores_tabular_q_no_replay[run,episode_number] = (num_wins+num_draws)/num_episodes
+            
         
 # scores_no_replay = np.array(scores)
 average_scores_replay = np.mean(scores_replay, axis=0)
 average_scores_no_replay = np.mean(scores_no_replay, axis=0)
 averaget_scores_tabular_q = np.mean(scores_tabular_q, axis=0)
+averaget_scores_tabular_q_no_replay = np.mean(scores_tabular_q_no_replay, axis=0)
 plt.figure(figsize=(15, 5), dpi= 80, facecolor='w', edgecolor='k')
 plt.plot(average_scores_replay)
 plt.plot(average_scores_no_replay)
 plt.plot(averaget_scores_tabular_q)
-plt.legend(["Avg. Replay", "Avg. No Replay", "Avg. Tabular Q"])
+plt.plot(averaget_scores_tabular_q_no_replay)
+plt.legend(["Avg. Replay", "Avg. No Replay", "Avg. Tabular Q", "Avg. Tabular Q NR"])
 plt.title("Average Score per learning episode")
 plt.xlabel("Steps")
 plt.ylabel("Average % of non loosing games")
