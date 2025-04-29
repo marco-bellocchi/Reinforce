@@ -55,7 +55,7 @@ class PrioritisedExperience:
     
 class Experience:
     
-    def __init__(self, maxlen = 100000):
+    def __init__(self, maxlen = 10000):
         self._deque_state_action = deque(maxlen = maxlen)
         self._deque_next_state_reward = deque(maxlen = maxlen)
         

@@ -7,7 +7,7 @@ Created on Tue Apr  2 09:29:35 2024
 """
 
 from rl_tictactoe import Environment, Board, QLearningControl, RandomAgent
-from rl_tictactoe_approximation import QLearningApproximateControl
+#from rl_tictactoe_approximation import QLearningApproximateControl
 
 def play_interactive(env, trained_agent):
     trained_agent._epsilon = 0
